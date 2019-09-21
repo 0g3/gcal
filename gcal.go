@@ -1,9 +1,10 @@
 package gcal
 
 import (
-	"google.golang.org/api/calendar/v3"
 	"strings"
 	"time"
+
+	"google.golang.org/api/calendar/v3"
 )
 
 type EventsInWeek map[time.Weekday][]*calendar.Event
@@ -13,8 +14,9 @@ type Calendar struct {
 	Svc *calendar.Service
 }
 
-func (c *Calendar) GetEventsOnNextDay() ([]*calendar.Event, error) {
-	nextDay := time.Now().AddDate(0, 0, 1)
+// day=n: n日後の予定を取得
+func (c *Calendar) ListEventsInNDays(n int) ([]*calendar.Event, error) {
+	nextDay := time.Now().AddDate(0, 0, n)
 
 	s := time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 0, 0, 0, time.Local).Format(time.RFC3339)
 	e := time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 23, 59, 59, 999999999, time.Local).Format(time.RFC3339)
@@ -28,7 +30,7 @@ func (c *Calendar) GetEventsOnNextDay() ([]*calendar.Event, error) {
 	return events.Items, err
 }
 
-func (c *Calendar) GetEventsInNextWeek() (EventsInWeek, error) {
+func (c *Calendar) BatchGetEventsInNextWeek() (EventsInWeek, error) {
 	now := time.Now()
 	var dltDay int
 	if now.Weekday() == time.Sunday {
